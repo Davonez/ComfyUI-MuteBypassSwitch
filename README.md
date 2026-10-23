@@ -1,3 +1,5 @@
+[English](README.en.md) ｜ **中文**
+
 # 静音旁路 / 多路汇聚开关 (Mute Bypass Switch)
 
 给 ComfyUI 的一套小开关：**上游节点被静音/禁用（Mute，Ctrl+M）之后，数据照样能往下走**，
@@ -385,6 +387,7 @@ ComfyUI-MuteBypassSwitch/
 ├─ preview_channel.png            # 多通道汇聚开关的截图
 ├─ preview_fanout.png             # 输出分发开关的截图
 ├─ README.md                      # 本文件
+├─ README.en.md                   # English version
 └─ tests/
    ├─ test_offline.py             # 离线单测 139 项，不用启动 ComfyUI
    ├─ test_live_api.py            # 后端真机 26 项，需要 ComfyUI 在 8188 运行
