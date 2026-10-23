@@ -1,0 +1,23 @@
+[project]
+name = "comfyui-mute-bypass-switch"
+version = "1.7.0"
+description = "静音容错开关：上游节点被静音(Mute)后数据照样往下走，只做引用转交、不改任何数据"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "koivis" }]
+keywords = ["comfyui", "custom-nodes", "switch", "mute", "bypass", "fanout"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/Davonez/ComfyUI-MuteBypassSwitch"
+Repository = "https://github.com/Davonez/ComfyUI-MuteBypassSwitch"
+"Issue Tracker" = "https://github.com/Davonez/ComfyUI-MuteBypassSwitch/issues"
+
+# ComfyUI Registry 的展示信息（按需补 PublisherId 后即可 comfy node publish）
+[tool.comfy]
+DisplayName = "Mute Bypass Switch"
