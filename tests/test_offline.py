@@ -284,24 +284,24 @@ it5 = FO.INPUT_TYPES()
 check("静态声明了 32 个输出口（8 路输入 × 4）", len(FO.RETURN_TYPES) == 32, str(len(FO.RETURN_TYPES)))
 check("输出名字 out_1..out_32", FO.RETURN_NAMES == tuple(f"out_{i}" for i in range(1, 33)))
 check("链路输入只声明了 in_1",
-      {k for k in it5["optional"] if not k.startswith("输出")} == {"in_1"},
+      {k for k in it5["optional"] if not k.startswith("output_")} == {"in_1"},
       str(sorted(it5["optional"]))[:120])
-check("32 个输出都有自己的 开/关 下拉",
-      all(f"输出{i}" in it5["optional"] for i in range(1, 33)))
-check("输出下拉只有 开 / 关 两个选项",
-      it5["optional"]["输出1"][0] == ["开", "关"], str(it5["optional"]["输出1"][0]))
-check("输出下拉默认开", it5["optional"]["输出1"][1]["default"] == "开")
-check("「每个输入配几个输出」只有 2/3/4 三个选项",
-      it5["required"]["每个输入配几个输出"][0] == ["2 个", "3 个", "4 个"],
-      str(it5["required"]["每个输入配几个输出"][0]))
-check("「每个输入配几个输出」默认 2 个",
-      it5["required"]["每个输入配几个输出"][1]["default"] == "2 个")
+check("32 个输出都有自己的 on/off 下拉",
+      all(f"output_{i}" in it5["optional"] for i in range(1, 33)))
+check("输出下拉只有 on / off 两个选项",
+      it5["optional"]["output_1"][0] == ["on", "off"], str(it5["optional"]["output_1"][0]))
+check("输出下拉默认 on", it5["optional"]["output_1"][1]["default"] == "on")
+check("outputs_per_input 只有 2/3/4 三个选项",
+      it5["required"]["outputs_per_input"][0] == ["2", "3", "4"],
+      str(it5["required"]["outputs_per_input"][0]))
+check("outputs_per_input 默认 2",
+      it5["required"]["outputs_per_input"][1]["default"] == "2")
 
 fo = FO()
 
 
 def fout(**kw):
-    return fo.apply(**{"每个输入配几个输出": "2 个", **kw})
+    return fo.apply(**{"outputs_per_input": "2", **kw})
 
 
 check("配 2 个：1 路输入 -> 前 2 个输出有值", fout(in_1="A")[:4] == ("A", "A", None, None),
@@ -310,17 +310,17 @@ check("配 2 个：2 路输入 -> A、A、B、B",
       fout(in_1="A", in_2="B")[:6] == ("A", "A", "B", "B", None, None),
       str(fout(in_1="A", in_2="B")[:6]))
 check("配 3 个：1 路输入 -> 前 3 个",
-      fout(**{"每个输入配几个输出": "3 个"}, in_1="A")[:5] == ("A", "A", "A", None, None),
-      str(fout(**{"每个输入配几个输出": "3 个"}, in_1="A")[:5]))
+      fout(**{"outputs_per_input": "3"}, in_1="A")[:5] == ("A", "A", "A", None, None),
+      str(fout(**{"outputs_per_input": "3"}, in_1="A")[:5]))
 check("配 3 个：2 路输入 -> A A A B B B",
-      fout(**{"每个输入配几个输出": "3 个"}, in_1="A", in_2="B")[:8]
+      fout(**{"outputs_per_input": "3"}, in_1="A", in_2="B")[:8]
       == ("A", "A", "A", "B", "B", "B", None, None),
-      str(fout(**{"每个输入配几个输出": "3 个"}, in_1="A", in_2="B")[:8]))
+      str(fout(**{"outputs_per_input": "3"}, in_1="A", in_2="B")[:8]))
 check("配 4 个：1 路输入 -> 前 4 个",
-      fout(**{"每个输入配几个输出": "4 个"}, in_1="A")[:5] == ("A", "A", "A", "A", None))
-check("关掉某个输出 -> 它交空", fout(in_1="A", **{"输出2": "关"})[:3] == ("A", None, None))
+      fout(**{"outputs_per_input": "4"}, in_1="A")[:5] == ("A", "A", "A", "A", None))
+check("关掉某个输出 -> 它交空", fout(in_1="A", **{"output_2": "off"})[:3] == ("A", None, None))
 check("关掉某个输出不影响别的",
-      fout(in_1="A", in_2="B", **{"输出3": "关"})[:4] == ("A", "A", None, "B"))
+      fout(in_1="A", in_2="B", **{"output_3": "off"})[:4] == ("A", "A", None, "B"))
 check("第 1 路静音、第 2 路有值 -> 只有第 2 对输出有值",
       fout(in_1=None, in_2="B")[:5] == (None, None, "B", "B", None),
       str(fout(in_1=None, in_2="B")[:5]))
@@ -329,7 +329,7 @@ check("输入是假值 0 也算有值", fout(in_1=0)[0] == 0)
 check("输出的是同一个对象 (is)", fout(in_1=payload2)[0] is payload2)
 check("无关 kwargs 不影响", fout(in_1="A", foo=1)[0] == "A")
 check("选项写坏（比如旧的 auto）也活得下去，按 2 个处理",
-      fout(**{"每个输入配几个输出": "auto"}, in_1="A")[:3] == ("A", "A", None))
+      fout(**{"outputs_per_input": "auto"}, in_1="A")[:3] == ("A", "A", None))
 
 # ---------------------------------------------------------------- 注册表
 print("[10] 注册表")

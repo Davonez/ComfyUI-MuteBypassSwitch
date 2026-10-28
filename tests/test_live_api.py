@@ -133,16 +133,16 @@ def channel_graph(present, prefixes=("mcs_ch1", "mcs_ch2"), force="auto", per=No
     return g
 
 
-def fanout_graph(present, prefixes, per="2 个", off=()):
+def fanout_graph(present, prefixes, per="2", off=()):
     """分发用例：present = {输入名: (尺寸, 颜色)}；每个输出一个 SaveImage。
 
-    per: 每个输入配几个输出（"2 个"/"3 个"/"4 个"）
-    off: 要关掉的输出号，比如 (2,) 表示「输出2=关」
+    per: outputs per input ("2" / "3" / "4")
+    off: output numbers to switch off, e.g. (2,) means output_2=off
     """
     g = {}
-    inputs = {"每个输入配几个输出": per}
+    inputs = {"outputs_per_input": per}
     for index in off:
-        inputs[f"输出{index}"] = "关"
+        inputs[f"output_{index}"] = "off"
     for i, (name, (size, colour)) in enumerate(present.items(), start=1):
         node_id = str(i)
         g[node_id] = {
@@ -385,7 +385,7 @@ run_multi_case(
 
 run_multi_case(
     "V. 分发：配 3 个 + 1 路输入 -> out_1..out_3 都是它",
-    fanout_graph({"in_1": (32, RED)}, ("mfo_v1", "mfo_v2", "mfo_v3"), per="3 个"),
+    fanout_graph({"in_1": (32, RED)}, ("mfo_v1", "mfo_v2", "mfo_v3"), per="3"),
     [("20", 32, (255, 0, 0)), ("21", 32, (255, 0, 0)), ("22", 32, (255, 0, 0))],
 )
 
@@ -405,7 +405,7 @@ run_fail_case(
 run_multi_case(
     "Y. 分发：配 3 个 + 2 路输入 -> 红红红、绿绿绿",
     fanout_graph({"in_1": (32, RED), "in_2": (48, GREEN)},
-                 ("mfo_y1", "mfo_y2", "mfo_y3", "mfo_y4", "mfo_y5", "mfo_y6"), per="3 个"),
+                 ("mfo_y1", "mfo_y2", "mfo_y3", "mfo_y4", "mfo_y5", "mfo_y6"), per="3"),
     [("20", 32, (255, 0, 0)), ("21", 32, (255, 0, 0)), ("22", 32, (255, 0, 0)),
      ("23", 48, (0, 255, 0)), ("24", 48, (0, 255, 0)), ("25", 48, (0, 255, 0))],
 )

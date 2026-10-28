@@ -259,11 +259,11 @@ app.registerExtension({
         options.push(
           null,
           {
-            content: "＋ 加一个通道（+2 输入 / +1 输出）",
+            content: "+ Add a channel (+2 inputs / +1 output)",
             callback: () => addChannel(this),
           },
           {
-            content: "－ 删掉最后一个空通道",
+            content: "- Remove the last empty channel",
             callback: () => removeChannel(this),
           },
         );

@@ -138,11 +138,11 @@ async function main() {
 
   const init = await state();
   console.log("\n[2] 刚建好:", JSON.stringify(init));
-  check("控件只有「每个输入配几个输出」+ 每个输出一行",
-    (init.allWidgets || []).join(",") === "每个输入配几个输出,输出1,输出2", JSON.stringify(init.allWidgets));
+  check("控件只有 outputs_per_input + 每个输出一行",
+    (init.allWidgets || []).join(",") === "outputs_per_input,output_1,output_2", JSON.stringify(init.allWidgets));
   check("默认 2 个：2 个输出口", (init.outputs || []).join(",") === "out_1,out_2", JSON.stringify(init.outputs));
   check("默认只有 1 个输入口 in_1", (init.inputs || []).join(",") === "in_1", JSON.stringify(init.inputs));
-  check("「每个输入配几个输出」默认 2 个", init.perInput === "2 个", String(init.perInput));
+  check("outputs_per_input 默认 2", init.perInput === "2", String(init.perInput));
 
   const connectIn = async (srcKey, name) => {
     const r = await evalJs(`(() => {
@@ -238,8 +238,8 @@ async function main() {
   console.log("\n[3] 接上第 2 路后:", JSON.stringify(afterIn2));
   check("接上第 2 路 -> 输出变 4 个",
     (afterIn2.outputs || []).join(",") === "out_1,out_2,out_3,out_4", JSON.stringify(afterIn2.outputs));
-  check("同时多出「输出3」「输出4」两行",
-    (afterIn2.outWidgets || []).join(",") === "输出1,输出2,输出3,输出4", JSON.stringify(afterIn2.outWidgets));
+  check("同时多出 output_3 和 output_4 两行",
+    (afterIn2.outWidgets || []).join(",") === "output_1,output_2,output_3,output_4", JSON.stringify(afterIn2.outWidgets));
 
   const s3 = await makeSave("ofs3_b1");
   const s4 = await makeSave("ofs3_b2");
@@ -250,9 +250,9 @@ async function main() {
 
   const setPer = await evalJs(`(() => {
     const app = ${APP}, sw = app.graph.getNodeById(${built.ids.sw});
-    const w = (sw.widgets || []).find(x => x.name === "每个输入配几个输出");
+    const w = (sw.widgets || []).find(x => x.name === "outputs_per_input");
     if (!w) return { missing: true };
-    w.value = "3 个";
+    w.value = "3";
     if (typeof w.callback === "function") w.callback(w.value);
     return { value: w.value };
   })()`);
@@ -279,7 +279,7 @@ async function main() {
       inputsLinked: ins.map(s => s.link != null),
       outputs: (sw.outputs || []).map(s => s.name),
       outputsLinked: (sw.outputs || []).map(s => (s.links || []).length > 0),
-      perInput: (sw.widgets || []).find(w => w.name === "每个输入配几个输出")?.value ?? null,
+      perInput: (sw.widgets || []).find(w => w.name === "outputs_per_input")?.value ?? null,
       outWidgets: (sw.widgets || []).map(w => w.name).filter(x => /^输出\\d+$/.test(x)),
     };
   })()`, true);
@@ -290,7 +290,7 @@ async function main() {
   check("加载后 6 个输出口都在", (reload?.outputs || []).length === 6, JSON.stringify(reload?.outputs));
   check("加载后 4 个 SaveImage 的连线都还原了",
     (reload?.outputsLinked || []).slice(0, 4).every(Boolean), JSON.stringify(reload?.outputsLinked));
-  check("加载后「配几个」还是 3 个", reload?.perInput === "3 个", String(reload?.perInput));
+  check("加载后 outputs_per_input 还是 3", reload?.perInput === "3", String(reload?.perInput));
 
   await queueAndCheck("加载后再跑一次仍然正确（32/32/32/48）",
     [[s1.id, 32], [s2.id, 32], [s3.id, 32], [s4.id, 48]]);

@@ -5,6 +5,12 @@
 A small set of switches for ComfyUI: **once the upstream node is muted / disabled (Mute, Ctrl+M), the data still flows through** —
 and what comes out is the original object: no copy, no conversion, no detach, no shuffling to CPU, not a single byte altered.
 
+**2.0.0 — English UI with optional translations.** All node labels, tooltips, menus and
+console messages are English now, and the pack ships `locales/en` + `locales/zh` so ComfyUI's
+language setting can still show a Chinese UI. The fanout node's widgets were renamed from the
+Chinese keys to `outputs_per_input` / `output_<n>` with the values `2`/`3`/`4` and `on`/`off`;
+workflows saved with 1.x need those two widgets re-selected once.
+
 Five nodes in total:
 
 | Node | What it does |
@@ -230,8 +236,8 @@ B node ──► in_2 ──┘                            ├─► out_3   ┐
 
 | Control | Description |
 |---|---|
-| `每个输入配几个输出` | `2 个` / `3 个` / `4 个`. Pick 2: A feeds out_1/out_2, B feeds out_3/out_4; pick 3: A feeds out_1~out_3, B feeds out_4~out_6 |
-| `输出1` `输出2` … | one row per output, only `开` / `关`. Don't want an output any more? Set it to `关` |
+| `outputs_per_input` | `2` / `3` / `4`. Pick 2: A feeds out_1/out_2, B feeds out_3/out_4; pick 3: A feeds out_1~out_3, B feeds out_4~out_6 |
+| `output_1` `output_2` … | one row per output, only `on` / `off`. Don't want an output any more? Set it to `off` |
 
 That's all there is — **no "which input does it follow" to choose**; the pairing is automatic:
 output k follows input number `ceil(k ÷ per-input count)`.
@@ -336,7 +342,7 @@ Three layers of verification were run in this environment, all passing:
 * U. fanout: 1 input + 2 per input → out_1/out_2 both get it;
 * V. fanout: 3 per input → out_1..out_3 all get it;
 * W. fanout: 2 inputs + 2 per input → red, red, green, green;
-* X. fanout: turn `输出2` off → the downstream wired to out_2 gets no data and fails as expected;
+* X. fanout: turn `output_2` off → the downstream wired to out_2 gets no data and fails as expected;
 * Y. fanout: 3 per input + 2 inputs → red red red, green green green;
 * Z. fanout: outputs 2~8 turned off, out_1 still outputs as usual (32 red).
   (F/H's `input_3`, `input_4` and J/K/L's `ch2_*`, `ch3_*` are
@@ -358,9 +364,9 @@ Three layers of verification were run in this environment, all passing:
   switching the global `force` to `b` on the canvas → output becomes 48/80 (ignoring a's value), switching back to `auto` → automatic picking returns;
   the per-channel dropdowns: with `ch1_force=b` only ch1 changes to 48 while ch2 stays 64; setting a/b on the two independently doesn't interfere;
   `ch{k}_force` only shows the channels that have grown (1 channel = 1 row, 3 channels = 3 rows).
-* Output Fanout Switch, 20 tests: freshly dragged in it only has `每个输入配几个输出` + two `开`/`关` rows, 1 input 2 outputs;
+* Output Fanout Switch, 20 tests: freshly dragged in it only has `outputs_per_input` + two `on`/`off` rows, 1 input 2 outputs;
   wiring A adds one more empty slot on the input side; wiring both outputs to SaveImage → both are A; wire B as well → **outputs automatically become 4**
-  and `输出3`/`输出4` appear; changing "how many per input" to 3 → **outputs become 6**, out_1..3 follow A and out_4 follows B;
+  and `output_3`/`output_4` appear; changing "how many per input" to 3 → **outputs become 6**, out_1..3 follow A and out_4 follows B;
   after save → load the slot counts, dropdowns and links are all still there, and queuing again still gives the right result.
 
 Environment: ComfyUI-aki-v3 (the new `LiteGraph` + `comfyAPI` frontend architecture, 3763 nodes in total),

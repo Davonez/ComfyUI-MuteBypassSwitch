@@ -1,0 +1,654 @@
+{
+  "MuteBypassSwitch": {
+    "display_name": "Mute Bypass Switch",
+    "description": "Pass-through switch: hands the upstream value to the downstream node unchanged. Both inputs are optional and accept any type, so muting the upstream node never raises a missing-input error here. When the main link disappears the bypass link takes over, which avoids 'Required input is missing' downstream.",
+    "inputs": {
+      "switch": {
+        "name": "Enable bypass",
+        "tooltip": "On: fall back to the bypass link when main is missing. Off: main only (the bypass link is ignored)."
+      },
+      "route": {
+        "name": "Route",
+        "tooltip": "auto = prefer main, fall back to bypass when main is missing | main = main only | bypass = bypass only (for debugging).",
+        "options": {
+          "auto": "Auto",
+          "main": "Main only",
+          "bypass": "Bypass only"
+        }
+      },
+      "main": {
+        "name": "Main",
+        "tooltip": "Main link: the one whose upstream node may get muted."
+      },
+      "bypass": {
+        "name": "Bypass",
+        "tooltip": "Bypass link: takes over when main is muted (usually wired straight to the upstream source)."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "data",
+        "tooltip": "The exact same object that came in, passed through unchanged."
+      }
+    }
+  },
+  "AnyABSwitch": {
+    "display_name": "Any A/B Switch",
+    "description": "Arbitrary-type A/B selector: outputs whatever the selected link carries, unchanged. If the selected link is not connected it falls back to the other link instead of breaking the downstream node.",
+    "inputs": {
+      "which": {
+        "name": "Select",
+        "tooltip": "A outputs link a, B outputs link b.",
+        "options": {
+          "A": "A",
+          "B": "B"
+        }
+      },
+      "a": {
+        "name": "A",
+        "tooltip": "Link A input."
+      },
+      "b": {
+        "name": "B",
+        "tooltip": "Link B input."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "data",
+        "tooltip": "The selected link, passed through unchanged."
+      }
+    }
+  },
+  "MultiAnySwitch": {
+    "display_name": "Multi Any Switch",
+    "description": "Multi-input merge: connect any number of links of any type and output the one that carries a value, unchanged. Muted/disabled upstreams are skipped instead of raising an error. A new empty input slot appears as soon as the last one is connected, so you can keep adding links. Want a fixed slot? Set force to 3 to always use slot 3.",
+    "inputs": {
+      "switch": {
+        "name": "Enable merge",
+        "tooltip": "On: pick the first (or last) link that carries a value. Off: only slot 1 is used, as if this node were not there."
+      },
+      "pick": {
+        "name": "Pick",
+        "tooltip": "Which link wins when several carry a value: first = topmost | last = bottommost.",
+        "options": {
+          "first": "First (top)",
+          "last": "Last (bottom)"
+        }
+      },
+      "force": {
+        "name": "Force slot",
+        "tooltip": "Force one slot: 0 = auto (pick the link with a value); 1-16 = only that slot, output empty when it has no value (no automatic fallback)."
+      },
+      "input_1": {
+        "name": "Input 1",
+        "tooltip": "Slot 1. Connecting it adds another input slot automatically; keep adding as many as you need."
+      },
+      "input_2": {
+        "name": "Input 2",
+        "tooltip": "Slot 2. Used when slot 1 is muted."
+      }
+    },
+    "outputs": {
+      "0": {
+        "name": "data",
+        "tooltip": "The selected link, passed through unchanged."
+      }
+    }
+  },
+  "MultiChannelSwitch": {
+    "display_name": "Multi Channel Switch",
+    "description": "Multi-channel merge: each channel has its own candidate links and outputs the one that carries a value, unchanged. Muting an upstream only affects that channel, which falls back on its own; every other channel is untouched. Channels grow automatically: when one is full, the next channel's 2 inputs and 1 output appear (up to 8 channels). Each channel has its own ch{k}_force dropdown (auto/a/b/c), or use the global force to set them all at once.",
+    "inputs": {
+      "switch": {
+        "name": "Enable merge",
+        "tooltip": "On: each channel picks the link that carries a value. Off: each channel uses input a only."
+      },
+      "pick": {
+        "name": "Pick",
+        "tooltip": "Which candidate wins inside a channel when several carry a value: first = topmost | last = bottommost.",
+        "options": {
+          "first": "First (top)",
+          "last": "Last (bottom)"
+        }
+      },
+      "force": {
+        "name": "Global force",
+        "tooltip": "Global force: a/b/c = every channel uses only that input; auto = each channel follows its own ch{k}_force.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch1_a": {
+        "name": "Channel 1 - A",
+        "tooltip": "Channel 1 main input (wire the branch that may get muted). Filling this channel adds channel 2 automatically."
+      },
+      "ch1_b": {
+        "name": "Channel 1 - B",
+        "tooltip": "Channel 1 fallback input (takes over when main is missing). Filling this channel adds channel 2 automatically."
+      },
+      "ch1_force": {
+        "name": "Channel 1 force",
+        "tooltip": "Channel 1 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch2_force": {
+        "name": "Channel 2 force",
+        "tooltip": "Channel 2 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch3_force": {
+        "name": "Channel 3 force",
+        "tooltip": "Channel 3 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch4_force": {
+        "name": "Channel 4 force",
+        "tooltip": "Channel 4 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch5_force": {
+        "name": "Channel 5 force",
+        "tooltip": "Channel 5 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch6_force": {
+        "name": "Channel 6 force",
+        "tooltip": "Channel 6 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch7_force": {
+        "name": "Channel 7 force",
+        "tooltip": "Channel 7 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      },
+      "ch8_force": {
+        "name": "Channel 8 force",
+        "tooltip": "Channel 8 routing: auto = follow the global force or pick automatically; a, b, c = only that input, output empty when it has no value.",
+        "options": {
+          "auto": "Auto",
+          "a": "A",
+          "b": "B",
+          "c": "C"
+        }
+      }
+    },
+    "outputs": {
+      "1": {
+        "name": "ch1",
+        "tooltip": "Channel 1 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "2": {
+        "name": "ch2",
+        "tooltip": "Channel 2 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "3": {
+        "name": "ch3",
+        "tooltip": "Channel 3 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "4": {
+        "name": "ch4",
+        "tooltip": "Channel 4 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "5": {
+        "name": "ch5",
+        "tooltip": "Channel 5 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "6": {
+        "name": "ch6",
+        "tooltip": "Channel 6 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "7": {
+        "name": "ch7",
+        "tooltip": "Channel 7 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      },
+      "8": {
+        "name": "ch8",
+        "tooltip": "Channel 8 output: in auto mode the first input of this channel that carries a value; with a forced route, the forced input."
+      }
+    }
+  },
+  "OutputFanoutSwitch": {
+    "display_name": "Output Fanout Switch",
+    "description": "One input to N outputs. Connecting input 1 creates out_1..out_n (n = outputs per input); connecting input 2 adds n more, paired with input 2. Every output has an on/off switch. Up to 8 inputs; output slots grow automatically as inputs are connected.",
+    "inputs": {
+      "outputs_per_input": {
+        "name": "Outputs per input",
+        "tooltip": "How many outputs one input gets: 2 means A drives out_1/out_2, B drives out_3/out_4, ...",
+        "options": {
+          "2": "2",
+          "3": "3",
+          "4": "4"
+        }
+      },
+      "in_1": {
+        "name": "Input 1",
+        "tooltip": "Input 1. Connecting it creates the first outputs automatically."
+      },
+      "output_1": {
+        "name": "Output 1",
+        "tooltip": "Output 1: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_2": {
+        "name": "Output 2",
+        "tooltip": "Output 2: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_3": {
+        "name": "Output 3",
+        "tooltip": "Output 3: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_4": {
+        "name": "Output 4",
+        "tooltip": "Output 4: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_5": {
+        "name": "Output 5",
+        "tooltip": "Output 5: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_6": {
+        "name": "Output 6",
+        "tooltip": "Output 6: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_7": {
+        "name": "Output 7",
+        "tooltip": "Output 7: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_8": {
+        "name": "Output 8",
+        "tooltip": "Output 8: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_9": {
+        "name": "Output 9",
+        "tooltip": "Output 9: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_10": {
+        "name": "Output 10",
+        "tooltip": "Output 10: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_11": {
+        "name": "Output 11",
+        "tooltip": "Output 11: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_12": {
+        "name": "Output 12",
+        "tooltip": "Output 12: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_13": {
+        "name": "Output 13",
+        "tooltip": "Output 13: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_14": {
+        "name": "Output 14",
+        "tooltip": "Output 14: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_15": {
+        "name": "Output 15",
+        "tooltip": "Output 15: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_16": {
+        "name": "Output 16",
+        "tooltip": "Output 16: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_17": {
+        "name": "Output 17",
+        "tooltip": "Output 17: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_18": {
+        "name": "Output 18",
+        "tooltip": "Output 18: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_19": {
+        "name": "Output 19",
+        "tooltip": "Output 19: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_20": {
+        "name": "Output 20",
+        "tooltip": "Output 20: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_21": {
+        "name": "Output 21",
+        "tooltip": "Output 21: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_22": {
+        "name": "Output 22",
+        "tooltip": "Output 22: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_23": {
+        "name": "Output 23",
+        "tooltip": "Output 23: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_24": {
+        "name": "Output 24",
+        "tooltip": "Output 24: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_25": {
+        "name": "Output 25",
+        "tooltip": "Output 25: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_26": {
+        "name": "Output 26",
+        "tooltip": "Output 26: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_27": {
+        "name": "Output 27",
+        "tooltip": "Output 27: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_28": {
+        "name": "Output 28",
+        "tooltip": "Output 28: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_29": {
+        "name": "Output 29",
+        "tooltip": "Output 29: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_30": {
+        "name": "Output 30",
+        "tooltip": "Output 30: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_31": {
+        "name": "Output 31",
+        "tooltip": "Output 31: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      },
+      "output_32": {
+        "name": "Output 32",
+        "tooltip": "Output 32: on = pass the value through / off = disable this output (empty).",
+        "options": {
+          "on": "On",
+          "off": "Off"
+        }
+      }
+    },
+    "outputs": {
+      "1": {
+        "name": "out_1",
+        "tooltip": "Output 1: paired with input 1 by default (with 2 outputs per input)."
+      },
+      "2": {
+        "name": "out_2",
+        "tooltip": "Output 2: paired with input 1 by default (with 2 outputs per input)."
+      },
+      "3": {
+        "name": "out_3",
+        "tooltip": "Output 3: paired with input 2 by default (with 2 outputs per input)."
+      },
+      "4": {
+        "name": "out_4",
+        "tooltip": "Output 4: paired with input 2 by default (with 2 outputs per input)."
+      },
+      "5": {
+        "name": "out_5",
+        "tooltip": "Output 5: paired with input 3 by default (with 2 outputs per input)."
+      },
+      "6": {
+        "name": "out_6",
+        "tooltip": "Output 6: paired with input 3 by default (with 2 outputs per input)."
+      },
+      "7": {
+        "name": "out_7",
+        "tooltip": "Output 7: paired with input 4 by default (with 2 outputs per input)."
+      },
+      "8": {
+        "name": "out_8",
+        "tooltip": "Output 8: paired with input 4 by default (with 2 outputs per input)."
+      },
+      "9": {
+        "name": "out_9",
+        "tooltip": "Output 9: paired with input 5 by default (with 2 outputs per input)."
+      },
+      "10": {
+        "name": "out_10",
+        "tooltip": "Output 10: paired with input 5 by default (with 2 outputs per input)."
+      },
+      "11": {
+        "name": "out_11",
+        "tooltip": "Output 11: paired with input 6 by default (with 2 outputs per input)."
+      },
+      "12": {
+        "name": "out_12",
+        "tooltip": "Output 12: paired with input 6 by default (with 2 outputs per input)."
+      },
+      "13": {
+        "name": "out_13",
+        "tooltip": "Output 13: paired with input 7 by default (with 2 outputs per input)."
+      },
+      "14": {
+        "name": "out_14",
+        "tooltip": "Output 14: paired with input 7 by default (with 2 outputs per input)."
+      },
+      "15": {
+        "name": "out_15",
+        "tooltip": "Output 15: paired with input 8 by default (with 2 outputs per input)."
+      },
+      "16": {
+        "name": "out_16",
+        "tooltip": "Output 16: paired with input 8 by default (with 2 outputs per input)."
+      },
+      "17": {
+        "name": "out_17",
+        "tooltip": "Output 17: paired with input 9 by default (with 2 outputs per input)."
+      },
+      "18": {
+        "name": "out_18",
+        "tooltip": "Output 18: paired with input 9 by default (with 2 outputs per input)."
+      },
+      "19": {
+        "name": "out_19",
+        "tooltip": "Output 19: paired with input 10 by default (with 2 outputs per input)."
+      },
+      "20": {
+        "name": "out_20",
+        "tooltip": "Output 20: paired with input 10 by default (with 2 outputs per input)."
+      },
+      "21": {
+        "name": "out_21",
+        "tooltip": "Output 21: paired with input 11 by default (with 2 outputs per input)."
+      },
+      "22": {
+        "name": "out_22",
+        "tooltip": "Output 22: paired with input 11 by default (with 2 outputs per input)."
+      },
+      "23": {
+        "name": "out_23",
+        "tooltip": "Output 23: paired with input 12 by default (with 2 outputs per input)."
+      },
+      "24": {
+        "name": "out_24",
+        "tooltip": "Output 24: paired with input 12 by default (with 2 outputs per input)."
+      },
+      "25": {
+        "name": "out_25",
+        "tooltip": "Output 25: paired with input 13 by default (with 2 outputs per input)."
+      },
+      "26": {
+        "name": "out_26",
+        "tooltip": "Output 26: paired with input 13 by default (with 2 outputs per input)."
+      },
+      "27": {
+        "name": "out_27",
+        "tooltip": "Output 27: paired with input 14 by default (with 2 outputs per input)."
+      },
+      "28": {
+        "name": "out_28",
+        "tooltip": "Output 28: paired with input 14 by default (with 2 outputs per input)."
+      },
+      "29": {
+        "name": "out_29",
+        "tooltip": "Output 29: paired with input 15 by default (with 2 outputs per input)."
+      },
+      "30": {
+        "name": "out_30",
+        "tooltip": "Output 30: paired with input 15 by default (with 2 outputs per input)."
+      },
+      "31": {
+        "name": "out_31",
+        "tooltip": "Output 31: paired with input 16 by default (with 2 outputs per input)."
+      },
+      "32": {
+        "name": "out_32",
+        "tooltip": "Output 32: paired with input 16 by default (with 2 outputs per input)."
+      }
+    }
+  }
+}

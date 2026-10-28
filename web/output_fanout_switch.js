@@ -1,16 +1,16 @@
 /**
  * 输出分发开关 (Output Fanout Switch) —— 前端扩展（新手友好版）
  * =====================================================================
- * 节点上只有两个控件：
- *   「每个输入配几个输出」：2 个 / 3 个 / 4 个
- *   每个输出一个「开 / 关」
+ * The node has only two kinds of widgets:
+ *   "outputs_per_input": 2 / 3 / 4
+ *   one on/off dropdown per output
  *
- * 输出跟哪个输入是自动配对的，不用选：
- *   配 2 个 -> out_1/out_2 跟 in_1，out_3/out_4 跟 in_2 …
- *   配 3 个 -> out_1..out_3 跟 in_1，out_4..out_6 跟 in_2 …
+ * Outputs are paired with inputs automatically:
+ *   2 per input -> out_1/out_2 follow in_1, out_3/out_4 follow in_2 ...
+ *   3 per input -> out_1..out_3 follow in_1, out_4..out_6 follow in_2 ...
  *
- * 画布上：接上第 1 路输入就出 n 个输出；再接第 2 路就多出 n 个（还会多留一个空输入位）。
- * 每个输出的「开/关」下拉只显示已经长出来的输出那一行。
+ * On canvas: connecting input 1 creates n outputs; connecting input 2 adds n more
+ * (plus one spare input slot). The on/off dropdown only appears for outputs that exist.
  *
  * 三条铁律（前面几个节点踩出来的）：
  *   1) 插槽只往数组末尾追加、绝不重排（graph.links 存的是下标）；
@@ -24,9 +24,9 @@ const NODE_TYPE = "OutputFanoutSwitch";
 const MAX_INPUTS = 8;
 const MAX_PER_INPUT = 4;
 const MAX_OUTPUTS = MAX_INPUTS * MAX_PER_INPUT;
-const PER_INPUT_NAME = "每个输入配几个输出";
-const ON_OFF_VALUES = ["开", "关"];
-const OUT_RE = /^输出(\d+)$/;
+const PER_INPUT_NAME = "outputs_per_input";
+const ON_OFF_VALUES = ["on", "off"];
+const OUT_RE = /^output_(\d+)$/;
 
 const parseInput = (name) => {
   const m = /^in_(\d+)$/.exec(String(name ?? ""));
@@ -46,7 +46,7 @@ function refit(node) {
 /** 当前「每个输入配几个输出」= 2/3/4。 */
 function perInputCount(node) {
   const w = (node.widgets ?? []).find((x) => x?.name === PER_INPUT_NAME);
-  const raw = String(w?.value ?? "2 个");
+  const raw = String(w?.value ?? "2");
   const n = parseInt(raw, 10);
   return Number.isFinite(n) ? Math.max(1, Math.min(MAX_PER_INPUT, n)) : 2;
 }
@@ -126,8 +126,8 @@ function syncOutputWidgets(node) {
   });
 
   for (let i = 1; i <= want; i++) {
-    if ((node.widgets || []).some((w) => w?.name === `输出${i}`)) continue;
-    const w = node.addWidget("combo", `输出${i}`, "开", () => {}, { values: ON_OFF_VALUES.slice() });
+    if ((node.widgets || []).some((w) => w?.name === `output_${i}`)) continue;
+    const w = node.addWidget("combo", `output_${i}`, "on", () => {}, { values: ON_OFF_VALUES.slice() });
     if (!w) break;
     changed = true;
   }

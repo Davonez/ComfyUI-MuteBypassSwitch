@@ -184,15 +184,15 @@ app.registerExtension({
         options.push(
           null,
           {
-            content: "＋ 增加一路输入",
+            content: "+ Add one input slot",
             callback: () => addOneSlot(this),
           },
           {
-            content: "－ 删掉最后一路空口",
+            content: "- Remove the last empty slot",
             callback: () => removeOneSlot(this),
           },
           {
-            content: "整理空输入口（保留已连线的 + 1 个空位）",
+            content: "Tidy empty input slots (keep connected + 1 spare)",
             callback: () => trimSlots(this),
           },
         );
